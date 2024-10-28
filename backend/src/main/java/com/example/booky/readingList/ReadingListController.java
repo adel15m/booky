@@ -1,10 +1,11 @@
 package com.example.booky.readingList;
 
 import com.example.booky.book.dto.BookDto;
-import com.example.booky.book.dto.PageableDto;
+import com.example.booky.common.dto.PageableDto;
 import com.example.booky.openlibrary.exception.OLBookNotFoundException;
 import com.example.booky.readingList.dto.ReadingListDto;
 import com.example.booky.readingList.dto.ReadingListRequestDto;
+import com.example.booky.readingList.exception.ReadingListNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class ReadingListController {
     @GetMapping("/{id}/books")
     public PageableDto<BookDto> getBooksInList(@PathVariable("id") Long id,
                                                @RequestParam(value = "page", required = false, defaultValue = "0") Integer pageNumber,
-                                               @RequestParam(value = "size", required = false, defaultValue = "6") Integer pageSize)  {
+                                               @RequestParam(value = "size", required = false, defaultValue = "6") Integer pageSize) throws ReadingListNotFoundException {
         return readingListService.getBooksInList(id,pageNumber,pageSize);
     }
 }

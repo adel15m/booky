@@ -1,7 +1,7 @@
 package com.example.booky.book;
 
 import com.example.booky.book.dto.BookDto;
-import com.example.booky.book.dto.PageableDto;
+import com.example.booky.common.dto.PageableDto;
 import com.example.booky.config.security.LoggedInUser;
 import com.example.booky.openlibrary.OpenLibraryService;
 import com.example.booky.openlibrary.dto.OLBookDto;

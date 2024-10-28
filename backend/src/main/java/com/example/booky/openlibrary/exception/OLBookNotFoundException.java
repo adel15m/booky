@@ -1,5 +1,10 @@
 package com.example.booky.openlibrary.exception;
 
-public class OLBookNotFoundException extends Exception {
+import com.example.booky.common.exception.BookyException;
 
+public class OLBookNotFoundException extends BookyException {
+
+    public OLBookNotFoundException() {
+        super("ERR-001","the isbn was not found in Open Library");
+    }
 }

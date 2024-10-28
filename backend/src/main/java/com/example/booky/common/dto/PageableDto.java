@@ -1,4 +1,4 @@
-package com.example.booky.book.dto;
+package com.example.booky.common.dto;
 
 import lombok.Builder;
 import lombok.Data;

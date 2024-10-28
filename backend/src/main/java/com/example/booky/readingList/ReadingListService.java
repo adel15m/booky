@@ -3,10 +3,11 @@ package com.example.booky.readingList;
 import com.example.booky.book.Book;
 import com.example.booky.book.BookService;
 import com.example.booky.book.dto.BookDto;
-import com.example.booky.book.dto.PageableDto;
+import com.example.booky.common.dto.PageableDto;
 import com.example.booky.config.security.LoggedInUser;
 import com.example.booky.readingList.dto.ReadingListDto;
 import com.example.booky.readingList.dto.ReadingListRequestDto;
+import com.example.booky.readingList.exception.ReadingListNotFoundException;
 import com.example.booky.user.User;
 import com.example.booky.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,11 +83,11 @@ public class ReadingListService {
                 .build());
     }
 
-    public PageableDto<BookDto> getBooksInList(Long id, Integer pageNumber, Integer pageSize) {
+    public PageableDto<BookDto> getBooksInList(Long id, Integer pageNumber, Integer pageSize) throws ReadingListNotFoundException {
         String userName = LoggedInUser.getUserName();
         User user = userService.getUser(userName).orElseThrow();
 
-        ReadingList readingList = readingListRepository.findById(id).orElseThrow();
+        ReadingList readingList = readingListRepository.findById(id).orElseThrow(ReadingListNotFoundException::new);
         if (!readingList.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("you dont own this list");
         }
