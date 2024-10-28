@@ -69,4 +69,11 @@ public class BookService {
                         .collect(Collectors.toList()))
                 .build();
     }
+
+    public Optional<Book> getBookForUser(String isbn, User user) {
+        Optional<UserBooks> optionalUserBooks = userBooksRepository.findByUserAndBook_Isbn(user, isbn);
+        return optionalUserBooks.map(UserBooks::getBook);
+    }
+
+
 }
