@@ -2,6 +2,7 @@ package com.example.booky.readingList;
 
 import com.example.booky.book.Book;
 import com.example.booky.book.BookService;
+import com.example.booky.book.dto.BookDto;
 import com.example.booky.book.dto.PageableDto;
 import com.example.booky.config.security.LoggedInUser;
 import com.example.booky.readingList.dto.ReadingListDto;
@@ -79,5 +80,34 @@ public class ReadingListService {
                 .list(readingList)
                 .book(book)
                 .build());
+    }
+
+    public PageableDto<BookDto> getBooksInList(Long id, Integer pageNumber, Integer pageSize) {
+        String userName = LoggedInUser.getUserName();
+        User user = userService.getUser(userName).orElseThrow();
+
+        ReadingList readingList = readingListRepository.findById(id).orElseThrow();
+        if (!readingList.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("you dont own this list");
+        }
+
+        Sort sort = Sort.by("book.title").ascending();
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Page<ReadingListBooks> r = readingListBooksRepository.findAllByList(readingList, pageable);
+        return PageableDto.<BookDto>builder()
+                .totalElements(r.getTotalElements())
+                .totalPages(r.getTotalPages())
+                .elements(r.getContent().stream()
+                        .map(ReadingListBooks::getBook)
+                        .map(book -> BookDto.builder()
+                                .author(book.getAuthor())
+                                .isbn(book.getIsbn())
+                                .numberOfPages(book.getPages())
+                                .title(book.getTitle())
+                                .coverUrl("https://covers.openlibrary.org/b/isbn/" + book.getIsbn() + "-M.jpg")
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
     }
 }
