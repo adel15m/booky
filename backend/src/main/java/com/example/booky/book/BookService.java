@@ -8,6 +8,7 @@ import com.example.booky.openlibrary.dto.OLBookDto;
 import com.example.booky.openlibrary.exception.OLBookNotFoundException;
 import com.example.booky.user.User;
 import com.example.booky.user.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,10 +16,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class BookService {
     private final RestTemplate restTemplate = new RestTemplate();
     @Autowired
@@ -34,16 +36,26 @@ public class BookService {
         String userName = LoggedInUser.getUserName();
         User user = userService.getUser(userName).orElseThrow();
 
+        // Check if the user already has this book
+        boolean alreadyExists = userBooksRepository.existsByUserAndBookIsbn(user, isbn);
+        if (alreadyExists) {
+            // If the user already has the book, skip adding it
+            log.info("Book with ISBN {} already exists for user {} ", isbn, userName);
+            return;
+        }
+
+        // Retrieve or save the book entity
         Book book;
         Optional<Book> bookOptional = bookRepository.findById(isbn);
         if (bookOptional.isPresent()) {
             book = bookOptional.get();
         } else {
             OLBookDto book1 = openLibraryService.getBook(isbn);
-            // Create and save the book entity
             book = Book.builder().isbn(isbn).title(book1.getTitle()).author(book1.getAuthor()).pages(book1.getPages()).build();
             book = bookRepository.save(book);
         }
+
+        // Save the book-user relationship only if it doesn't already exist
         userBooksRepository.save(UserBooks.builder().book(book).user(user).build());
     }
 

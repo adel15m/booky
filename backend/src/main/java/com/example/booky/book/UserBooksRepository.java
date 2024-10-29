@@ -10,8 +10,7 @@ import java.util.Optional;
 public interface UserBooksRepository extends JpaRepository<UserBooks, Long> {
 
     Page<UserBooks> findAllByUser(User user, Pageable pageable);
-
     Optional<UserBooks> findByUserAndBook_Isbn(User user, String isbn);
-
+    boolean existsByUserAndBookIsbn(User user, String isbn);
 
 }
