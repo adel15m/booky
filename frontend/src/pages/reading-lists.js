@@ -7,6 +7,9 @@ export default function ReadingLists() {
     const [pageSize, setPageSize] = useState(6);
     const [totalPages, setTotalPages] = useState(1);
     const [totalLists, setTotalLists] = useState(0);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedListId, setSelectedListId] = useState(null);
+    const [isbn, setIsbn] = useState('');
 
     useEffect(() => {
         fetchReadingLists();
@@ -35,6 +38,28 @@ export default function ReadingLists() {
 
     const previousPage = () => {
         if (page > 0) setPage(page - 1);
+    };
+
+    const openModal = (listId) => {
+        setSelectedListId(listId);
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setIsbn('');
+    };
+
+    const handleAddBook = async () => {
+        try {
+            await axiosInstance.post(`/reading-list/${isbn}/${selectedListId}`);
+            alert("Book added successfully!");
+            closeModal();
+            fetchReadingLists(); // Refresh the lists if needed
+        } catch (error) {
+            console.error("Error adding book to list:", error);
+            alert("Failed to add the book.");
+        }
     };
 
     return (
@@ -68,6 +93,7 @@ export default function ReadingLists() {
                     {readingLists.map((list) => (
                         <div key={list.id} style={{ border: '1px solid #ccc', padding: '10px' }}>
                             <h3>{list.name}</h3>
+                            <button onClick={() => openModal(list.id)}>Add Book</button>
                         </div>
                     ))}
                 </div>
@@ -78,6 +104,42 @@ export default function ReadingLists() {
                 <span>Page {page + 1} of {totalPages}</span>
                 <button onClick={nextPage} disabled={page === totalPages - 1}>Next</button>
             </div>
+
+            {/* Modal for adding a book */}
+            {showModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '20px',
+                        borderRadius: '8px',
+                        width: '300px',
+                        textAlign: 'center'
+                    }}>
+                        <h2>Add Book to List</h2>
+                        <input
+                            type="text"
+                            placeholder="Enter ISBN"
+                            value={isbn}
+                            onChange={(e) => setIsbn(e.target.value)}
+                            style={{ marginBottom: '10px', width: '100%', padding: '8px' }}
+                        />
+                        <div>
+                            <button onClick={handleAddBook} style={{ marginRight: '10px' }}>Add Book</button>
+                            <button onClick={closeModal}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
