@@ -33,7 +33,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.cors() // Enable CORS using settings from WebConfig
+                .and()
+                .csrf().disable()
                 .authorizeHttpRequests()
                 .requestMatchers("/api/auth/login", "/api/user/**").permitAll()
                 .anyRequest().authenticated()
@@ -43,6 +45,7 @@ public class SecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

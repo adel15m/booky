@@ -5,6 +5,7 @@ import com.example.booky.common.dto.PageableDto;
 import com.example.booky.openlibrary.exception.OLBookNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
 @RequestMapping("/api/book")
