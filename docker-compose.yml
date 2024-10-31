@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  booky-db:
+    image: mysql:8.0
+    container_name: booky-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_DATABASE: booky
+      MYSQL_USER: bookyuser
+      MYSQL_PASSWORD: password123
+    ports:
+      - "3306:3306"
+    healthcheck:
+            test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+            timeout: 20s
+            retries: 10
+  booky-backend:
+    build: ./backend
+    container_name: booky-backend
+    depends_on:
+        booky-db:
+            condition: service_healthy
+    ports:
+      - "8080:8080"
+
+
+  booky-frontend:
+    build: ./frontend
+    container_name: booky-frontend
+    depends_on:
+      - booky-backend
+    ports:
+      - "80:80"
+
+
+
+
+  
