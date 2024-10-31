@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import axiosInstance from '../utils/axiosInstance';
 
 export default function ReadingLists() {
+    const router = useRouter();
     const [readingLists, setReadingLists] = useState([]);
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(6);
     const [totalPages, setTotalPages] = useState(1);
     const [totalLists, setTotalLists] = useState(0);
-    const [newListName, setNewListName] = useState(''); // For creating new lists
-    const [showModal, setShowModal] = useState(false); // For add book modal
+    const [newListName, setNewListName] = useState('');
+    const [showModal, setShowModal] = useState(false);
     const [selectedListId, setSelectedListId] = useState(null);
-    const [isbn, setIsbn] = useState(''); // ISBN input for adding book
+    const [isbn, setIsbn] = useState('');
 
     useEffect(() => {
         fetchReadingLists();
@@ -40,8 +42,8 @@ export default function ReadingLists() {
             });
 
             alert("Reading list created successfully!");
-            setNewListName(''); // Clear input
-            fetchReadingLists(); // Refresh lists
+            setNewListName('');
+            fetchReadingLists();
         } catch (error) {
             console.error("Error creating reading list:", error);
             alert("Failed to create reading list.");
@@ -55,7 +57,7 @@ export default function ReadingLists() {
 
     const closeModal = () => {
         setShowModal(false);
-        setIsbn(''); // Clear ISBN input
+        setIsbn('');
     };
 
     const handleAddBookToList = async () => {
@@ -73,6 +75,16 @@ export default function ReadingLists() {
             alert("Failed to add the book to the list.");
         }
     };
+
+
+
+
+   const navigateToList = (listId, listName) => {
+       router.push({
+           pathname: `/list/${listId}`,
+           query: { name: listName },
+       });
+   };
 
     const handlePageSizeChange = (e) => {
         setPageSize(Number(e.target.value));
@@ -92,7 +104,6 @@ export default function ReadingLists() {
             <h1>Your Reading Lists</h1>
             <p>Total reading lists: {totalLists}</p>
 
-            {/* Input for new reading list and button */}
             <div style={{ marginBottom: '20px' }}>
                 <input
                     type="text"
@@ -130,7 +141,8 @@ export default function ReadingLists() {
                     {readingLists.map((list) => (
                         <div key={list.id} style={{ border: '1px solid #ccc', padding: '10px' }}>
                             <h3>{list.name}</h3>
-                            <button onClick={() => openModal(list.id)}>Add Book</button>
+                            <button onClick={() => openModal(list.id)} style={{ marginRight: '5px' }}>Add Book</button>
+                            <button onClick={() => navigateToList(list.id, list.name)}>Show List</button>
                         </div>
                     ))}
                 </div>
