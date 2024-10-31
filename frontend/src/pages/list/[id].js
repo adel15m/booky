@@ -9,14 +9,14 @@ export default function ListBooks() {
     const [books, setBooks] = useState([]);
     const [totalBooks, setTotalBooks] = useState(0); // State for the number of books
     const [page, setPage] = useState(0);
-    const [pageSize, setPageSize] = useState(6);
     const [totalPages, setTotalPages] = useState(1);
+    const pageSize = 6;
 
     useEffect(() => {
         if (id) {
             fetchBooksInList();
         }
-    }, [id, page, pageSize]);
+    }, [id, page]);
 
     const fetchBooksInList = async () => {
         try {
