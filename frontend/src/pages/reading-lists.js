@@ -7,9 +7,10 @@ export default function ReadingLists() {
     const [pageSize, setPageSize] = useState(6);
     const [totalPages, setTotalPages] = useState(1);
     const [totalLists, setTotalLists] = useState(0);
-    const [showModal, setShowModal] = useState(false);
+    const [newListName, setNewListName] = useState(''); // For creating new lists
+    const [showModal, setShowModal] = useState(false); // For add book modal
     const [selectedListId, setSelectedListId] = useState(null);
-    const [isbn, setIsbn] = useState('');
+    const [isbn, setIsbn] = useState(''); // ISBN input for adding book
 
     useEffect(() => {
         fetchReadingLists();
@@ -27,6 +28,52 @@ export default function ReadingLists() {
         }
     };
 
+    const createReadingList = async () => {
+        if (!newListName.trim()) {
+            alert("Please enter a name for the reading list.");
+            return;
+        }
+
+        try {
+            await axiosInstance.post(`/reading-list/`, {
+                name: newListName
+            });
+
+            alert("Reading list created successfully!");
+            setNewListName(''); // Clear input
+            fetchReadingLists(); // Refresh lists
+        } catch (error) {
+            console.error("Error creating reading list:", error);
+            alert("Failed to create reading list.");
+        }
+    };
+
+    const openModal = (listId) => {
+        setSelectedListId(listId);
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setIsbn(''); // Clear ISBN input
+    };
+
+    const handleAddBookToList = async () => {
+        if (!isbn.trim()) {
+            alert("Please enter an ISBN.");
+            return;
+        }
+
+        try {
+            await axiosInstance.post(`/reading-list/${isbn}/${selectedListId}`);
+            alert("Book added to reading list successfully!");
+            closeModal();
+        } catch (error) {
+            console.error("Error adding book to reading list:", error);
+            alert("Failed to add the book to the list.");
+        }
+    };
+
     const handlePageSizeChange = (e) => {
         setPageSize(Number(e.target.value));
         setPage(0);
@@ -40,32 +87,22 @@ export default function ReadingLists() {
         if (page > 0) setPage(page - 1);
     };
 
-    const openModal = (listId) => {
-        setSelectedListId(listId);
-        setShowModal(true);
-    };
-
-    const closeModal = () => {
-        setShowModal(false);
-        setIsbn('');
-    };
-
-    const handleAddBook = async () => {
-        try {
-            await axiosInstance.post(`/reading-list/${isbn}/${selectedListId}`);
-            alert("Book added successfully!");
-            closeModal();
-            fetchReadingLists(); // Refresh the lists if needed
-        } catch (error) {
-            console.error("Error adding book to list:", error);
-            alert("Failed to add the book.");
-        }
-    };
-
     return (
         <div>
             <h1>Your Reading Lists</h1>
             <p>Total reading lists: {totalLists}</p>
+
+            {/* Input for new reading list and button */}
+            <div style={{ marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    placeholder="Enter reading list name"
+                    value={newListName}
+                    onChange={(e) => setNewListName(e.target.value)}
+                    style={{ marginRight: '10px', padding: '5px' }}
+                />
+                <button onClick={createReadingList}>Create Reading List</button>
+            </div>
 
             <div style={{ marginBottom: '20px' }}>
                 <label htmlFor="pageSize">Lists per page: </label>
@@ -105,7 +142,7 @@ export default function ReadingLists() {
                 <button onClick={nextPage} disabled={page === totalPages - 1}>Next</button>
             </div>
 
-            {/* Modal for adding a book */}
+            {/* Modal for adding book to a reading list */}
             {showModal && (
                 <div style={{
                     position: 'fixed',
@@ -134,7 +171,7 @@ export default function ReadingLists() {
                             style={{ marginBottom: '10px', width: '100%', padding: '8px' }}
                         />
                         <div>
-                            <button onClick={handleAddBook} style={{ marginRight: '10px' }}>Add Book</button>
+                            <button onClick={handleAddBookToList} style={{ marginRight: '10px' }}>Add Book</button>
                             <button onClick={closeModal}>Cancel</button>
                         </div>
                     </div>
